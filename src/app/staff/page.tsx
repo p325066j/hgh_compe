@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import StaffLayout from '@/components/staff/StaffLayout';
 import WaitingTimeEditCard from '@/components/staff/WaitingTimeEditCard';
 import { getWaitingTimesWithExaminations } from '@/data/mockData';
@@ -11,8 +11,8 @@ export default function StaffPage() {
   const [filteredWaitingTimes, setFilteredWaitingTimes] = useState<WaitingTimeWithExamination[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [lastUpdated, setLastUpdated] = useState<string>('');
-  const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [searchTerm, setSearchTerm] = useState<string>('');
+  const [statusFilter] = useState<string>('all');
+  const [searchTerm] = useState<string>('');
 
   // データを取得する関数
   const fetchData = () => {
@@ -31,7 +31,7 @@ export default function StaffPage() {
   };
 
   // フィルタリング関数
-  const filterWaitingTimes = () => {
+  const filterWaitingTimes = useCallback(() => {
     let filtered = [...waitingTimes];
     
     // ステータスでフィルタリング
@@ -49,12 +49,12 @@ export default function StaffPage() {
     }
     
     setFilteredWaitingTimes(filtered);
-  };
+  }, [statusFilter, searchTerm, waitingTimes]);
 
   // フィルター変更時の処理
   useEffect(() => {
     filterWaitingTimes();
-  }, [statusFilter, searchTerm, waitingTimes]);
+  }, [filterWaitingTimes]);
 
   // 待ち時間情報を更新する関数
   const handleUpdateWaitingTime = (id: string, updates: Partial<WaitingTimeWithExamination>) => {

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import PatientLayout from '@/components/patient/PatientLayout';
 import StatusBadge from '@/components/ui/StatusBadge';
@@ -10,7 +10,6 @@ import { WaitingTimeWithExamination } from '@/types';
 
 export default function ExaminationDetailPage() {
   const params = useParams();
-  const router = useRouter();
   const id = params.id as string;
   
   const [waitingTimeInfo, setWaitingTimeInfo] = useState<WaitingTimeWithExamination | null>(null);

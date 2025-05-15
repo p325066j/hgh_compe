@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import PatientLayout from '@/components/patient/PatientLayout';
 import WaitingTimeCard from '@/components/patient/WaitingTimeCard';
 import { getWaitingTimesWithExaminations } from '@/data/mockData';
@@ -11,8 +11,8 @@ export default function PatientPage() {
   const [filteredWaitingTimes, setFilteredWaitingTimes] = useState<WaitingTimeWithExamination[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [lastUpdated, setLastUpdated] = useState<string>('');
-  const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [searchTerm, setSearchTerm] = useState<string>('');
+  const [statusFilter] = useState<string>('all');
+  const [searchTerm] = useState<string>('');
 
   // データを取得する関数
   const fetchData = () => {
@@ -31,7 +31,7 @@ export default function PatientPage() {
   };
 
   // フィルタリング関数
-  const filterWaitingTimes = () => {
+  const filterWaitingTimes = useCallback(() => {
     let filtered = [...waitingTimes];
     
     // ステータスでフィルタリング
@@ -49,12 +49,12 @@ export default function PatientPage() {
     }
     
     setFilteredWaitingTimes(filtered);
-  };
+  }, [statusFilter, searchTerm, waitingTimes]);
 
   // フィルター変更時の処理
   useEffect(() => {
     filterWaitingTimes();
-  }, [statusFilter, searchTerm, waitingTimes]);
+  }, [filterWaitingTimes]);
 
   // 初回レンダリング時にデータを取得
   useEffect(() => {

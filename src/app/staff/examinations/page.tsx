@@ -11,7 +11,6 @@ export default function ExaminationManagementPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [formMode, setFormMode] = useState<'add' | 'edit'>('add');
-  const [currentExamination, setCurrentExamination] = useState<Examination | null>(null);
   
   // フォーム用の状態
   const [formValues, setFormValues] = useState({
@@ -57,7 +56,6 @@ export default function ExaminationManagementPage() {
       description: examination.description,
       averageTime: examination.averageTime
     });
-    setCurrentExamination(examination);
     setFormMode('edit');
     setShowForm(true);
   };
