@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import { WaitingTimeWithExamination, ConsultationWaitingTimeWithRoom } from '@/types';
 import { getWaitingTimesWithExaminations, getConsultationWaitingTimesWithRooms } from '@/data/mockData';
 
@@ -42,27 +42,27 @@ export const WaitingTimeProvider: React.FC<WaitingTimeProviderProps> = ({ childr
   const [consultationTimesLastUpdated, setConsultationTimesLastUpdated] = useState<string>('');
 
   // 現在時刻のフォーマット
-  const formatCurrentTime = () => {
+  const formatCurrentTime = useCallback(() => {
     const now = new Date();
     return `${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`;
-  };
+  }, []);
 
   // 検査待ち時間データを取得
-  const refreshWaitingTimes = () => {
+  const refreshWaitingTimes = useCallback(() => {
     const data = getWaitingTimesWithExaminations();
     setWaitingTimes(data);
     setWaitingTimesLastUpdated(formatCurrentTime());
-  };
+  }, [formatCurrentTime]);
 
   // 診察室待ち時間データを取得
-  const refreshConsultationWaitingTimes = () => {
+  const refreshConsultationWaitingTimes = useCallback(() => {
     const data = getConsultationWaitingTimesWithRooms();
     setConsultationWaitingTimes(data);
     setConsultationTimesLastUpdated(formatCurrentTime());
-  };
+  }, [formatCurrentTime]);
 
   // 検査待ち時間情報を更新
-  const updateWaitingTime = (id: string, updates: Partial<WaitingTimeWithExamination>) => {
+  const updateWaitingTime = useCallback((id: string, updates: Partial<WaitingTimeWithExamination>) => {
     setWaitingTimes(prevTimes => 
       prevTimes.map(time => 
         time.id === id 
@@ -71,10 +71,10 @@ export const WaitingTimeProvider: React.FC<WaitingTimeProviderProps> = ({ childr
       )
     );
     setWaitingTimesLastUpdated(formatCurrentTime());
-  };
+  }, [formatCurrentTime]);
 
   // 診察室待ち時間情報を更新
-  const updateConsultationWaitingTime = (id: string, updates: Partial<ConsultationWaitingTimeWithRoom>) => {
+  const updateConsultationWaitingTime = useCallback((id: string, updates: Partial<ConsultationWaitingTimeWithRoom>) => {
     setConsultationWaitingTimes(prevTimes => 
       prevTimes.map(time => 
         time.id === id 
@@ -83,7 +83,7 @@ export const WaitingTimeProvider: React.FC<WaitingTimeProviderProps> = ({ childr
       )
     );
     setConsultationTimesLastUpdated(formatCurrentTime());
-  };
+  }, [formatCurrentTime]);
 
   // 初回マウント時にデータを取得
   useEffect(() => {
