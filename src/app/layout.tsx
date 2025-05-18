@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { ThemeProvider } from "@/context/ThemeContext";
+import { WaitingTimeProvider } from "@/context/WaitingTimeContext";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -19,7 +20,9 @@ export default function RootLayout({
     <html lang="ja" className="light">
       <body className={`${inter.className} antialiased transition-colors duration-200 bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-gray-100`}>
         <ThemeProvider>
-          {children}
+          <WaitingTimeProvider>
+            {children}
+          </WaitingTimeProvider>
         </ThemeProvider>
       </body>
     </html>

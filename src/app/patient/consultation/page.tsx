@@ -3,43 +3,30 @@
 import React, { useEffect, useState } from 'react';
 import PatientLayout from '@/components/patient/PatientLayout';
 import ConsultationWaitingTimeCard from '@/components/patient/ConsultationWaitingTimeCard';
-import { getConsultationWaitingTimesWithRooms } from '@/data/mockData';
+import { useWaitingTime } from '@/context/WaitingTimeContext';
 import { ConsultationWaitingTimeWithRoom } from '@/types';
 
 export default function ConsultationWaitingTimePage() {
-  const [waitingTimes, setWaitingTimes] = useState<ConsultationWaitingTimeWithRoom[]>([]);
+  const { 
+    consultationWaitingTimes: waitingTimes, 
+    refreshConsultationWaitingTimes, 
+    consultationTimesLastUpdated 
+  } = useWaitingTime();
+  
   const [isLoading, setIsLoading] = useState(true);
-  const [lastUpdated, setLastUpdated] = useState<string>('');
 
-  // データを取得する関数
-  const fetchData = () => {
-    setIsLoading(true);
-    // モックデータを取得（実際のアプリではAPIリクエストになる）
-    const data = getConsultationWaitingTimesWithRooms();
-    setWaitingTimes(data);
-    setIsLoading(false);
-    
-    // 最終更新時刻を設定
-    const now = new Date();
-    setLastUpdated(
-      `${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`
-    );
-  };
-
-  // 初回レンダリング時にデータを取得
+  // コンテキストから取得したデータが変更されたらローディング状態を更新
   useEffect(() => {
-    fetchData();
-    
-    // 60秒ごとにデータを自動更新（リアルタイム更新のシミュレーション）
-    const intervalId = setInterval(fetchData, 60000);
-    
-    // クリーンアップ関数
-    return () => clearInterval(intervalId);
-  }, []);
+    if (waitingTimes.length > 0) {
+      setIsLoading(false);
+    }
+  }, [waitingTimes]);
 
   // 手動更新時の処理
   const handleRefresh = () => {
-    fetchData();
+    setIsLoading(true);
+    refreshConsultationWaitingTimes();
+    setIsLoading(false);
   };
 
   return (
@@ -47,7 +34,7 @@ export default function ConsultationWaitingTimePage() {
       <div className="mb-6 flex flex-col md:flex-row md:justify-between md:items-center">
         <h2 className="text-2xl font-bold text-white-600 mb-4 md:mb-0 pb-2 border-b-2 border-green-200">診察待ち時間一覧</h2>
         <div className="flex items-center">
-          <span className="text-sm text-green-600 mr-2">最終更新: {lastUpdated}</span>
+          <span className="text-sm text-green-600 mr-2">最終更新: {consultationTimesLastUpdated}</span>
           <button 
             onClick={handleRefresh}
             className="bg-green-500 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-green-600 transition-colors shadow-sm"

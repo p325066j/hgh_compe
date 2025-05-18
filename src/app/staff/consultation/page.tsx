@@ -3,70 +3,49 @@
 import React, { useEffect, useState } from 'react';
 import StaffLayout from '@/components/staff/StaffLayout';
 import ConsultationWaitingTimeEditCard from '@/components/staff/ConsultationWaitingTimeEditCard';
-import { getConsultationWaitingTimesWithRooms } from '@/data/mockData';
+import { useWaitingTime } from '@/context/WaitingTimeContext';
 import { ConsultationWaitingTimeWithRoom } from '@/types';
 
 export default function ConsultationWaitingTimePage() {
-  const [waitingTimes, setWaitingTimes] = useState<ConsultationWaitingTimeWithRoom[]>([]);
+  const { 
+    consultationWaitingTimes: waitingTimes, 
+    updateConsultationWaitingTime, 
+    refreshConsultationWaitingTimes, 
+    consultationTimesLastUpdated
+  } = useWaitingTime();
   const [isLoading, setIsLoading] = useState(true);
-  const [lastUpdated, setLastUpdated] = useState<string>('');
 
-  // データを取得する関数
-  const fetchData = () => {
-    setIsLoading(true);
-    // モックデータを取得（実際のアプリではAPIリクエストになる）
-    const data = getConsultationWaitingTimesWithRooms();
-    setWaitingTimes(data);
-    setIsLoading(false);
-    
-    // 最終更新時刻を設定
-    const now = new Date();
-    setLastUpdated(
-      `${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`
-    );
-  };
+  // コンテキストから取得したデータが変更されたらローディング状態を更新
+  useEffect(() => {
+    if (waitingTimes.length > 0) {
+      setIsLoading(false);
+    }
+  }, [waitingTimes]);
 
   // 待ち時間情報を更新する関数
   const handleUpdateWaitingTime = (id: string, updates: Partial<ConsultationWaitingTimeWithRoom>) => {
-    // 実際のアプリではAPIリクエストでデータを更新
-    // モックデータの場合はフロントエンドの状態のみ更新
-    setWaitingTimes(prevTimes => 
-      prevTimes.map(time => 
-        time.id === id 
-          ? { ...time, ...updates, updatedAt: new Date().toISOString() } 
-          : time
-      )
-    );
-    
-    // 最終更新時刻を更新
-    const now = new Date();
-    setLastUpdated(
-      `${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`
-    );
+    // コンテキスト経由で更新（患者側にも反映される）
+    updateConsultationWaitingTime(id, updates);
     
     // 成功メッセージ（実際のアプリではトースト通知など）
     alert('診察待ち時間情報を更新しました');
   };
 
-  // 初回レンダリング時にデータを取得
-  useEffect(() => {
-    fetchData();
-    
-    // 60秒ごとにデータを自動更新（リアルタイム更新のシミュレーション）
-    const intervalId = setInterval(fetchData, 60000);
-    
-    // クリーンアップ関数
-    return () => clearInterval(intervalId);
-  }, []);
+  // データ更新処理
+  const handleRefresh = () => {
+    setIsLoading(true);
+    refreshConsultationWaitingTimes();
+    setIsLoading(false);
+  };
 
   return (
     <StaffLayout>
       <div className="mb-6 flex flex-col md:flex-row md:justify-between md:items-center">
         <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-4 md:mb-0">診察待ち時間管理</h2>
         <div className="flex items-center">
-          <span className="text-sm text-gray-600 dark:text-gray-400 mr-2">最終更新: {lastUpdated}</span>
+          <span className="text-sm text-gray-600 dark:text-gray-400 mr-2">最終更新: {consultationTimesLastUpdated}</span>
           <button 
-            onClick={fetchData}
+            onClick={handleRefresh}
             className="bg-blue-600 dark:bg-blue-700 text-white px-3 py-1 rounded-md text-sm font-medium hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors"
             disabled={isLoading}
           >
