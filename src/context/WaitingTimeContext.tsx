@@ -97,7 +97,7 @@ export const WaitingTimeProvider: React.FC<WaitingTimeProviderProps> = ({ childr
     }, 60000);
     
     return () => clearInterval(intervalId);
-  }, []);
+  }, [refreshWaitingTimes, refreshConsultationWaitingTimes]);
 
   const value = {
     waitingTimes,

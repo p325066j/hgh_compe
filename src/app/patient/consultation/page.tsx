@@ -4,7 +4,6 @@ import React, { useEffect, useState } from 'react';
 import PatientLayout from '@/components/patient/PatientLayout';
 import ConsultationWaitingTimeCard from '@/components/patient/ConsultationWaitingTimeCard';
 import { useWaitingTime } from '@/context/WaitingTimeContext';
-import { ConsultationWaitingTimeWithRoom } from '@/types';
 
 export default function ConsultationWaitingTimePage() {
   const { 
